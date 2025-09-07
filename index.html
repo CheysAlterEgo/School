@@ -1,1 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome Page</title>
+  <style>
+    /* Reset some default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
+    body {
+      background: linear-gradient(135deg, #e0f0ff, #a0c4ff);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: #03396c;
+      transition: background 0.5s ease;
+    }
+
+    h1 {
+      margin-bottom: 50px;
+      font-size: 3rem;
+      animation: fadeIn 1.5s ease forwards;
+      opacity: 0;
+    }
+
+    /* Navbar styles */
+    nav {
+      display: flex;
+      gap: 2rem;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 2s ease forwards;
+      opacity: 0;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #03396c;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      background-color: #011f4b;
+      left: 0;
+      bottom: 0;
+      transition: width 0.3s ease;
+    }
+
+    nav a:hover {
+      background-color: rgba(3, 57, 108, 0.1);
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Haii!</h1>
+  <nav>
+    <a href="elements.html">Elements</a>
+    <a href="bonds.html">Bonds</a>
+  </nav>
+
+  <script>
+    // Optional: Animate body background on hover
+    const body = document.body;
+    body.addEventListener('mousemove', e => {
+      const x = e.clientX / window.innerWidth - 0.5;
+      const y = e.clientY / window.innerHeight - 0.5;
+      body.style.background = `linear-gradient(${135 + x*10}deg, #e0f0ff, #a0c4ff)`;
+    });
+  </script>
+</body>
+</html>
