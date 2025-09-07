@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bond Naming Trainer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0faff;
+      color: #222;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #0066cc;
+    }
+    .mode {
+      margin: 8px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: none;
+      background: #0066cc;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .mode:hover {
+      background: #004a99;
+    }
+    #quiz-box {
+      margin-top: 20px;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: inline-block;
+      min-width: 300px;
+    }
+    input[type=text] {
+      padding: 8px;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin-top: 10px;
+      width: 80%;
+    }
+    .feedback {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ Bond Naming Trainer</h1>
+  <p>Practice naming covalent and ionic compounds</p>
+
+  <div>
+    <button class="mode" onclick="setMode('ionic')">Ionic Naming</button>
+    <button class="mode" onclick="setMode('covalent')">Covalent Naming</button>
+  </div>
+
+  <div id="quiz-box">
+    <div id="question">Click a mode to begin!</div>
+    <input type="text" id="answer" placeholder="Type your answer" disabled>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <script>
+    const ionicCompounds = [
+      {formula: "NaCl", name: "sodium chloride"},
+      {formula: "K2S", name: "potassium sulfide"},
+      {formula: "MgBr2", name: "magnesium bromide"},
+      {formula: "CaO", name: "calcium oxide"},
+      {formula: "AlCl3", name: "aluminum chloride"},
+      {formula: "Fe2O3", name: "iron(III) oxide"},
+      {formula: "CuCl2", name: "copper(II) chloride"},
+      {formula: "ZnS", name: "zinc sulfide"},
+      {formula: "BaF2", name: "barium fluoride"},
+      {formula: "NH4NO3", name: "ammonium nitrate"},
+      {formula: "Na2SO4", name: "sodium sulfate"},
+      {formula: "CaCO3", name: "calcium carbonate"},
+    ];
+
+    const covalentCompounds = [
+      {formula: "CO", name: "carbon monoxide"},
+      {formula: "CO2", name: "carbon dioxide"},
+      {formula: "SO2", name: "sulfur dioxide"},
+      {formula: "SO3", name: "sulfur trioxide"},
+      {formula: "N2O", name: "dinitrogen monoxide"},
+      {formula: "N2O5", name: "dinitrogen pentoxide"},
+      {formula: "P2O5", name: "diphosphorus pentoxide"},
+      {formula: "Cl2O7", name: "dichlorine heptoxide"},
+      {formula: "SeF6", name: "selenium hexafluoride"},
+      {formula: "ICl3", name: "iodine trichloride"},
+      {formula: "BrF5", name: "bromine pentafluoride"},
+      {formula: "SF6", name: "sulfur hexafluoride"},
+    ];
+
+    let mode = null;
+    let currentQuestion = null;
+
+    function setMode(m) {
+      mode = m;
+      document.getElementById("answer").disabled = false;
+      document.getElementById("answer").value = "";
+      document.getElementById("feedback").innerText = "";
+      newQuestion();
+    }
+
+    function newQuestion() {
+      document.getElementById("answer").value = "";
+      if (mode === "ionic") {
+        currentQuestion = ionicCompounds[Math.floor(Math.random() * ionicCompounds.length)];
+        if (Math.random() > 0.5) {
+          document.getElementById("question").innerText = `What is the name of ${currentQuestion.formula}?`;
+          currentQuestion.type = "formula";
+        } else {
+          document.getElementById("question").innerText = `What is the formula for ${currentQuestion.name}?`;
+          currentQuestion.type = "name";
+        }
+      } else if (mode === "covalent") {
+        currentQuestion = covalentCompounds[Math.floor(Math.random() * covalentCompounds.length)];
+        if (Math.random() > 0.5) {
+          document.getElementById("question").innerText = `What is the name of ${currentQuestion.formula}?`;
+          currentQuestion.type = "formula";
+        } else {
+          document.getElementById("question").innerText = `What is the formula for ${currentQuestion.name}?`;
+          currentQuestion.type = "name";
+        }
+      }
+    }
+
+    document.getElementById("answer").addEventListener("keyup", function(e) {
+      if (e.key === "Enter") {
+        checkAnswer();
+      }
+    });
+
+    function checkAnswer() {
+      let ans = document.getElementById("answer").value.trim().toLowerCase();
+      let correct;
+
+      if (mode === "ionic" || mode === "covalent") {
+        correct = (currentQuestion.type === "formula") ? currentQuestion.name : currentQuestion.formula.toLowerCase();
+      }
+
+      if (ans === correct) {
+        document.getElementById("feedback").innerText = "✅ Correct!";
+        setTimeout(newQuestion, 1000);
+      } else {
+        document.getElementById("feedback").innerText = `❌ Incorrect. Correct answer: ${correct}`;
+      }
+    }
+  </script>
+</body>
+</html>
