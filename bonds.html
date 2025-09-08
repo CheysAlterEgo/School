@@ -1,156 +1,627 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Bond Naming Trainer</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0faff;
-      color: #222;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 {
-      color: #0066cc;
-    }
-    .mode {
-      margin: 8px;
-      padding: 10px 20px;
-      border-radius: 12px;
-      border: none;
-      background: #0066cc;
-      color: white;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .mode:hover {
-      background: #004a99;
-    }
-    #quiz-box {
-      margin-top: 20px;
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      display: inline-block;
-      min-width: 300px;
-    }
-    input[type=text] {
-      padding: 8px;
-      font-size: 16px;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-      margin-top: 10px;
-      width: 80%;
-    }
-    .feedback {
-      margin-top: 12px;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cute Chem Names — Practice Ionic & Covalent</title>
+<style>
+  :root{
+    --bg:#f7f8fb;
+    --card:#ffffff;
+    --accent:#ff9dbb;
+    --accent-2:#9bd3ff;
+    --muted:#7b7f86;
+    --glass: rgba(255,255,255,0.6);
+    --success:#3ccf8e;
+    --danger:#ff6b6b;
+    font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background: linear-gradient(180deg, #fbfbff 0%, #f2fbff 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+    color:#222;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:1000px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.95));
+    border-radius:20px;
+    box-shadow: 0 10px 30px rgba(20,30,60,0.08);
+    padding:22px;
+    display:grid;
+    grid-template-columns: 380px 1fr;
+    gap:18px;
+    align-items:start;
+  }
+
+  header{
+    grid-column:1/-1;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .logo{
+    width:64px;height:64px;border-radius:14px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;color:white;font-weight:700;
+    box-shadow: 0 6px 18px rgba(157,77,118,0.18);
+    transform:rotate(-6deg);
+  }
+  h1{margin:0;font-size:20px}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+
+  .sidebar{
+    background:var(--card);
+    border-radius:14px;
+    padding:16px;
+    box-shadow: 0 6px 20px rgba(100,120,140,0.04);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    min-height:380px;
+  }
+
+  label.small{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+  select,input[type="radio"]{width:100%}
+
+  .controls-row{
+    display:flex;gap:8px;
+  }
+  select, button, input[type="text"], .btn{
+    border:1px solid rgba(30,40,60,0.06);
+    padding:10px 12px;
+    border-radius:10px;
+    background:transparent;
+    font-size:14px;
+    outline:none;
+  }
+  .btn{
+    cursor:pointer;
+    background:linear-gradient(180deg,var(--accent),#ff7fa6);
+    color:white;font-weight:600;border:none;
+  }
+  .btn.secondary{
+    background:linear-gradient(180deg,var(--accent-2),#7fcfff);
+    color:#043b66;
+  }
+  .mini{
+    padding:8px 10px;font-size:13px;border-radius:9px;
+  }
+
+  .info{
+    font-size:13px;color:var(--muted);
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .stat{
+    display:flex;justify-content:space-between;background: linear-gradient(180deg, rgba(250,250,255,0.9), rgba(250,250,255,0.7));
+    padding:10px;border-radius:10px;align-items:center;
+  }
+
+  main.card{
+    background:var(--card);
+    border-radius:14px;
+    padding:20px;
+    min-height:380px;
+    box-shadow: 0 10px 30px rgba(20,30,60,0.04);
+    display:flex;flex-direction:column;
+    gap:12px;
+  }
+
+  .question-area{
+    display:flex;align-items:center;gap:12px;
+  }
+  .q-box{
+    flex:1;background:linear-gradient(180deg, rgba(245,246,255,0.9), rgba(255,255,255,0.6));
+    border-radius:12px;padding:18px;border:1px solid rgba(30,40,60,0.03);
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .q-type{font-size:13px;color:var(--muted)}
+  .q-text{font-size:20px;font-weight:700}
+
+  .answer-row{
+    display:flex;gap:8px;align-items:center;
+  }
+  input[type="text"].answer{
+    flex:1;padding:12px;border-radius:10px;border:1px solid rgba(30,40,60,0.06);
+    font-size:16px;
+  }
+  .feedback{
+    min-height:36px;font-size:14px;
+  }
+  .hint{
+    background:#fff9f9;border-left:4px solid var(--accent-2);padding:10px;border-radius:8px;color:#4b4b4b;font-size:13px;
+  }
+
+  .small-muted{font-size:12px;color:var(--muted)}
+
+  footer.controls{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:auto}
+  .progress-bar{
+    height:10px;background:rgba(0,0,0,0.05);border-radius:10px;overflow:hidden;width:220px;
+  }
+  .progress-bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%}
+
+  /* Cute badges */
+  .badge{
+    display:inline-block;padding:6px 8px;border-radius:999px;font-size:12px;background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(255,255,255,0.5));
+    border:1px solid rgba(0,0,0,0.03);
+  }
+
+  /* animations */
+  .logo{transition:transform .25s}
+  .logo:hover{transform: rotate(0deg) scale(1.03)}
+  .q-box{transition:transform .12s, box-shadow .12s}
+  .q-box:active{transform:translateY(2px)}
+  .glow{box-shadow:0 8px 30px rgba(157,139,205,0.12)}
+
+  @media (max-width:880px){
+    .wrap{grid-template-columns:1fr; padding:14px}
+    header{flex-direction:column;align-items:flex-start;gap:6px}
+  }
+</style>
 </head>
 <body>
-  <h1>⚡ Bond Naming Trainer</h1>
-  <p>Practice naming covalent and ionic compounds</p>
+  <div class="wrap" role="application" aria-label="Cute chemistry naming practice">
+    <header>
+      <div class="logo">Cn</div>
+      <div>
+        <h1>Cute Chem Names</h1>
+        <p class="lead">Practice writing ionic & covalent compound formulas and names — lots of examples, gentle animations.</p>
+      </div>
+    </header>
 
-  <div>
-    <button class="mode" onclick="setMode('ionic')">Ionic Naming</button>
-    <button class="mode" onclick="setMode('covalent')">Covalent Naming</button>
+    <aside class="sidebar" aria-label="Settings and stats">
+      <div>
+        <label class="small">Category</label>
+        <select id="categorySelect" aria-label="Category select">
+          <option value="type1">Ionic — Metal + Nonmetal (Type I)</option>
+          <option value="transition">Ionic — Transition Metals (use Roman numerals)</option>
+          <option value="poly">Ionic — Contains Polyatomic Ion</option>
+          <option value="covalent">Covalent (Molecular) — binary covalent</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="small">Practice Mode</label>
+        <select id="modeSelect">
+          <option value="nameToFormula">Name → Formula</option>
+          <option value="formulaToName">Formula → Name</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="small">Difficulty (affects pool selection)</label>
+        <select id="difficulty">
+          <option value="all">All examples</option>
+          <option value="easy">Easier / common ions</option>
+          <option value="hard">Harder / rarer ions</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="small">Session settings</label>
+        <div style="display:flex;gap:8px">
+          <button id="nextBtn" class="btn mini">Next</button>
+          <button id="showBtn" class="mini" style="background:transparent;border:1px dashed rgba(0,0,0,0.06)">Show Answer</button>
+        </div>
+      </div>
+
+      <div class="info">
+        <div class="stat"><div>Score</div><div id="score">0</div></div>
+        <div class="stat"><div>Streak</div><div id="streak">0</div></div>
+        <div class="stat"><div>Progress</div><div style="display:flex;align-items:center;gap:8px">
+          <div class="progress-bar" aria-hidden="true"><i id="progressFill"></i></div>
+          <div id="progressText" class="small-muted">0/0</div>
+        </div></div>
+      </div>
+
+      <div style="margin-top:8px">
+        <div class="small-muted">Quick hints</div>
+        <ul style="padding-left:16px;margin:6px 0 0 0;color:var(--muted);font-size:13px">
+          <li>Type I ionic: metal name + nonmetal root + -ide (e.g., NaCl → sodium chloride).</li>
+          <li>Transition metals: use Roman numerals for oxidation state (iron(III) oxide).</li>
+          <li>Polyatomic ions keep their common name (e.g., NH<sub>4</sub>NO<sub>3</sub> → ammonium nitrate).</li>
+          <li>Covalent: prefixes (mono-, di-, tri-) for number of atoms in the name.</li>
+        </ul>
+      </div>
+
+      <div style="margin-top:auto">
+        <div style="display:flex;gap:8px">
+          <button id="resetBtn" class="btn secondary mini">Reset Session</button>
+          <button id="downloadBtn" class="mini">Export List</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="card" role="main">
+      <div class="question-area">
+        <div class="q-box glow" id="qBox" aria-live="polite">
+          <div class="q-type" id="qType">Category: Ionic</div>
+          <div class="q-text" id="qText">Press Next to begin ➜</div>
+          <div class="small-muted" id="explainText">Choose a category and mode, then press Next.</div>
+        </div>
+      </div>
+
+      <div class="answer-row">
+        <input id="answerInput" class="answer" type="text" placeholder="Type your formula or name here" autocomplete="off" />
+        <button id="checkBtn" class="btn">Check</button>
+        <button id="hintBtn" class="mini">Hint</button>
+      </div>
+
+      <div class="feedback" id="feedbackArea"></div>
+
+      <div id="hintBox" style="display:none" class="hint"></div>
+
+      <footer class="controls">
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="badge" id="currentPoolName">Pool: —</div>
+          <div class="small-muted" id="lastAnswer">Last: —</div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="small-muted">Made for studying • Cute & minimal</div>
+        </div>
+      </footer>
+    </main>
   </div>
 
-  <div id="quiz-box">
-    <div id="question">Click a mode to begin!</div>
-    <input type="text" id="answer" placeholder="Type your answer" disabled>
-    <div class="feedback" id="feedback"></div>
-  </div>
+<script>
+/*
+  Cute Chem Names — Single-file study app
+  - Many examples across categories
+  - No-repeat sampling per session
+  - Two modes: nameToFormula, formulaToName
+  - Tolerant answer checking
+*/
 
-  <script>
-    const ionicCompounds = [
-      {formula: "NaCl", name: "sodium chloride"},
-      {formula: "K2S", name: "potassium sulfide"},
-      {formula: "MgBr2", name: "magnesium bromide"},
-      {formula: "CaO", name: "calcium oxide"},
-      {formula: "AlCl3", name: "aluminum chloride"},
-      {formula: "Fe2O3", name: "iron(III) oxide"},
-      {formula: "CuCl2", name: "copper(II) chloride"},
-      {formula: "ZnS", name: "zinc sulfide"},
-      {formula: "BaF2", name: "barium fluoride"},
-      {formula: "NH4NO3", name: "ammonium nitrate"},
-      {formula: "Na2SO4", name: "sodium sulfate"},
-      {formula: "CaCO3", name: "calcium carbonate"},
-    ];
+/* ---------- Data pools ---------- */
+/* Each entry: { formula: "NaCl", name: "sodium chloride", tags: ["easy","type1"], hint: "..."} */
+const POOLS = {
+  type1: [
+    {f:"NaCl", n:"sodium chloride", hint:"Type I: metal (sodium) + nonmetal root (chlor-) + -ide", tags:["easy","type1"]},
+    {f:"KBr", n:"potassium bromide", hint:"alkali metal + halogen", tags:["easy","type1"]},
+    {f:"MgO", n:"magnesium oxide", hint:"Mg 2+ and O 2- => 1:1", tags:["easy","type1"]},
+    {f:"CaS", n:"calcium sulfide", hint:"sulfide = S 2-", tags:["easy","type1"]},
+    {f:"LiF", n:"lithium fluoride", hint:"Fluoride = F-", tags:["easy","type1"]},
+    {f:"RbCl", n:"rubidium chloride", hint:"alkali metal + chloride", tags:["type1"]},
+    {f:"BaO", n:"barium oxide", hint:"Ba 2+ + O 2- → BaO", tags:["type1"]},
+    {f:"Al2S3", n:"aluminum sulfide", hint:"Al is 3+ here", tags:["hard","type1"]},
+    {f:"Be3N2", n:"beryllium nitride", hint:"Be is 2+, N is 3- → formula Be3N2", tags:["hard","type1"]},
+    {f:"CaF2", n:"calcium fluoride", hint:"Ca 2+ with F- → CaF2", tags:["easy","type1"]},
+    {f:"Na2O", n:"sodium oxide", hint:"2 Na+ with O2- → Na2O", tags:["type1"]},
+    {f:"K2S", n:"potassium sulfide", hint:"2 K+ and S2- → K2S", tags:["type1"]},
+    {f:"MgCl2", n:"magnesium chloride", hint:"Mg2+ and Cl- → MgCl2", tags:["type1"]},
+    {f:"Ca3P2", n:"calcium phosphide", hint:"Ca2+ and P3- balance → Ca3P2", tags:["hard","type1"]},
+    {f:"Na3P", n:"sodium phosphide", hint:"Na+ with P3- → Na3P", tags:["hard","type1"]},
+    {f:"K2O", n:"potassium oxide", hint:"2 K+ and O2- → K2O", tags:["type1"]}
+  ],
 
-    const covalentCompounds = [
-      {formula: "CO", name: "carbon monoxide"},
-      {formula: "CO2", name: "carbon dioxide"},
-      {formula: "SO2", name: "sulfur dioxide"},
-      {formula: "SO3", name: "sulfur trioxide"},
-      {formula: "N2O", name: "dinitrogen monoxide"},
-      {formula: "N2O5", name: "dinitrogen pentoxide"},
-      {formula: "P2O5", name: "diphosphorus pentoxide"},
-      {formula: "Cl2O7", name: "dichlorine heptoxide"},
-      {formula: "SeF6", name: "selenium hexafluoride"},
-      {formula: "ICl3", name: "iodine trichloride"},
-      {formula: "BrF5", name: "bromine pentafluoride"},
-      {formula: "SF6", name: "sulfur hexafluoride"},
-    ];
+  transition: [
+    {f:"Fe2O3", n:"iron(III) oxide", hint:"Fe total +3:2*Fe +3 & O2- → Fe2O3", tags:["easy","transition"]},
+    {f:"FeO", n:"iron(II) oxide", hint:"Fe(II) oxide is FeO", tags:["transition"]},
+    {f:"CuCl2", n:"copper(II) chloride", hint:"Copper is +2 here", tags:["easy","transition"]},
+    {f:"Cu2O", n:"copper(I) oxide", hint:"Cu(I) has +1 charge", tags:["transition"]},
+    {f:"PbS", n:"lead(II) sulfide", hint:"Lead commonly +2 here", tags:["transition"]},
+    {f:"PbO2", n:"lead(IV) oxide", hint:"Lead must be +4 for O2- pair", tags:["hard","transition"]},
+    {f:"SnO", n:"tin(II) oxide", hint:"Sn(II) is stannous oxide (archaic)", tags:["transition"]},
+    {f:"SnO2", n:"tin(IV) oxide", hint:"Sn(IV) is stannic oxide", tags:["transition"]},
+    {f:"MnO2", n:"manganese(IV) oxide", hint:"Mn can have multiple oxidation states", tags:["transition"]},
+    {f:"Cr2O3", n:"chromium(III) oxide", hint:"Cr is +3 here", tags:["transition"]},
+    {f:"Ag2S", n:"silver(I) sulfide", hint:"Silver is usually +1", tags:["easy","transition"]},
+    {f:"CoCl2", n:"cobalt(II) chloride", hint:"Co is +2 here", tags:["transition"]},
+    {f:"Co2O3", n:"cobalt(III) oxide", hint:"Co can be +3", tags:["hard","transition"]},
+    {f:"Hg2Cl2", n:"mercury(I) chloride", hint:"Mercury(I) forms Hg2^2+ dimers", tags:["hard","transition"]},
+    {f:"HgCl2", n:"mercury(II) chloride", hint:"Mercury(II) is simpler: Hg2+", tags:["transition"]}
+  ],
 
-    let mode = null;
-    let currentQuestion = null;
+  poly: [
+    {f:"NH4Cl", n:"ammonium chloride", hint:"NH4+ is ammonium", tags:["easy","poly"]},
+    {f:"NaNO3", n:"sodium nitrate", hint:"NO3- is nitrate", tags:["easy","poly"]},
+    {f:"KNO2", n:"potassium nitrite", hint:"NO2- is nitrite", tags:["poly"]},
+    {f:"CaCO3", n:"calcium carbonate", hint:"CO3 2- is carbonate", tags:["easy","poly"]},
+    {f:"Na2CO3", n:"sodium carbonate", hint:"2 Na+ balance carbonate", tags:["poly"]},
+    {f:"Mg(OH)2", n:"magnesium hydroxide", hint:"OH- is hydroxide", tags:["poly"]},
+    {f:"Al2(SO4)3", n:"aluminum sulfate", hint:"SO4 2-, need 3 for charge balance", tags:["hard","poly"]},
+    {f:"K2SO4", n:"potassium sulfate", hint:"K+ and SO4 2-", tags:["poly"]},
+    {f:"NaHCO3", n:"sodium bicarbonate", hint:"Also called sodium hydrogen carbonate", tags:["poly"]},
+    {f:"NH4NO3", n:"ammonium nitrate", hint:"Used in fertilizers", tags:["poly"]},
+    {f:"Na2SO3", n:"sodium sulfite", hint:"SO3 2- sulfite", tags:["poly"]},
+    {f:"Ca3(PO4)2", n:"calcium phosphate", hint:"PO4 3-; watch balancing", tags:["hard","poly"]},
+    {f:"KClO3", n:"potassium chlorate", hint:"ClO3- is chlorate", tags:["poly"]},
+    {f:"NaClO", n:"sodium hypochlorite", hint:"ClO- is hypochlorite (bleach)", tags:["hard","poly"]},
+    {f:"NH4HCO3", n:"ammonium bicarbonate", hint:"ammonium + bicarbonate", tags:["poly"]}
+  ],
 
-    function setMode(m) {
-      mode = m;
-      document.getElementById("answer").disabled = false;
-      document.getElementById("answer").value = "";
-      document.getElementById("feedback").innerText = "";
-      newQuestion();
+  covalent: [
+    {f:"CO2", n:"carbon dioxide", hint:"CO2 = carbon (di)oxide", tags:["easy","cov"]},
+    {f:"CO", n:"carbon monoxide", hint:"mono- often omitted for first element", tags:["cov"]},
+    {f:"SO2", n:"sulfur dioxide", hint:"sulfur + di-oxygen", tags:["cov"]},
+    {f:"SO3", n:"sulfur trioxide", hint:"sulfur + tri-oxygen", tags:["cov"]},
+    {f:"N2O", n:"dinitrogen monoxide", hint:"nitrous oxide", tags:["cov"]},
+    {f:"PCl3", n:"phosphorus trichloride", hint:"phosphorus + tri-chloride", tags:["cov"]},
+    {f:"PCl5", n:"phosphorus pentachloride", hint:"penta-", tags:["cov"]},
+    {f:"N2O5", n:"dinitrogen pentoxide", hint:"two nitrogens with five oxygens", tags:["hard","cov"]},
+    {f:"Cl2O7", n:"dichlorine heptoxide", hint:"rare but good practice", tags:["hard","cov"]},
+    {f:"NO2", n:"nitrogen dioxide", hint:"nitrogen + di-oxygen", tags:["cov"]},
+    {f:"SF6", n:"sulfur hexafluoride", hint:"inert gas-like, large molecule", tags:["cov"]},
+    {f:"SiO2", n:"silicon dioxide", hint:"commonly 'silicon dioxide' (no prefix for mono-Si)", tags:["cov"]},
+    {f:"CCl4", n:"carbon tetrachloride", hint:"tetra-", tags:["cov"]},
+    {f:"SOCl2", n:"thionyl chloride", hint:"special name; accepted: sulfuryl chloride / thionyl chloride", tags:["hard","cov"]},
+    {f:"NO", n:"nitric oxide", hint:"nitrogen monoxide, commonly called nitric oxide", tags:["cov"]}
+  ]
+};
+
+/* ---------- App state ---------- */
+let session = {
+  poolOrder: [],          // shuffled list of indices for current pool
+  poolName: null,
+  poolRemaining: [],      // indices remaining
+  currentIndex: null,
+  score:0, streak:0, tried:0, correct:0
+};
+
+/* ---------- Helpers ---------- */
+function pickPool(category, difficulty){
+  const arr = POOLS[category] || [];
+  // filter by difficulty if needed
+  if(difficulty === 'easy'){
+    return arr.filter(e => e.tags.includes("easy") || e.tags.includes("type1"));
+  } else if(difficulty === 'hard'){
+    return arr.filter(e => e.tags.includes("hard"));
+  }
+  return arr.slice();
+}
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function normalizeAnswer(s){
+  if(!s) return "";
+  // lowercase, trim spaces, remove certain punctuation, unify roman numerals spacing
+  return s.toString().toLowerCase()
+    .replace(/[\u2018\u2019\u201C\u201D']/g,"") // quotes/apostrophes
+    .replace(/[^a-z0-9\(\)\-\+\s,]/g,"") // keep parentheses, roman numeral parentheses, hyphen, plus, comma
+    .replace(/\s+/g," ").trim();
+}
+function formulaCanonical(f){
+  return f.toString().replace(/\s+/g,"").replace(/\+/g,"");
+}
+
+/* ---------- UI wiring ---------- */
+const categorySelect = document.getElementById('categorySelect');
+const modeSelect = document.getElementById('modeSelect');
+const difficultySelect = document.getElementById('difficulty');
+const nextBtn = document.getElementById('nextBtn');
+const checkBtn = document.getElementById('checkBtn');
+const showBtn = document.getElementById('showBtn');
+const resetBtn = document.getElementById('resetBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const hintBtn = document.getElementById('hintBtn');
+
+const qType = document.getElementById('qType');
+const qText = document.getElementById('qText');
+const explainText = document.getElementById('explainText');
+const answerInput = document.getElementById('answerInput');
+const feedbackArea = document.getElementById('feedbackArea');
+const hintBox = document.getElementById('hintBox');
+const scoreEl = document.getElementById('score');
+const streakEl = document.getElementById('streak');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const currentPoolName = document.getElementById('currentPoolName');
+const lastAnswer = document.getElementById('lastAnswer');
+
+/* ---------- Core behavior ---------- */
+function startNewSession(){
+  const category = categorySelect.value;
+  const difficulty = difficultySelect.value;
+  const pool = pickPool(category, difficulty);
+  if(pool.length === 0){
+    qText.textContent = "No examples found for this combination.";
+    return;
+  }
+  session.poolName = category;
+  session.pool = pool;
+  session.poolRemaining = shuffle(Array.from(pool.keys())); // indices
+  session.score = 0; session.streak = 0; session.tried = 0; session.correct = 0;
+  updateStats();
+  updateProgress();
+  currentPoolName.textContent = `Pool: ${category}`;
+  nextQuestion();
+}
+
+function updateStats(){
+  scoreEl.textContent = session.score;
+  streakEl.textContent = session.streak;
+}
+
+function updateProgress(){
+  const total = session.pool ? session.pool.length : 0;
+  const done = session.tried;
+  const pct = total ? Math.round(done/total*100) : 0;
+  progressFill.style.width = pct + "%";
+  progressText.textContent = `${done}/${total}`;
+}
+
+function nextQuestion(){
+  hintBox.style.display = "none";
+  feedbackArea.textContent = "";
+  answerInput.value = "";
+  answerInput.focus();
+  const mode = modeSelect.value;
+  const category = categorySelect.value;
+
+  if(!session.pool || session.poolName !== category){
+    startNewSession();
+    return;
+  }
+  if(session.poolRemaining.length === 0){
+    qText.textContent = "Session complete — reset or change settings to continue.";
+    explainText.textContent = `Score: ${session.score} — Correct: ${session.correct}/${session.tried}`;
+    return;
+  }
+  const idx = session.poolRemaining.pop();
+  session.currentIndex = idx;
+  const entry = session.pool[idx];
+
+  // present question depending on mode
+  if(mode === 'nameToFormula'){
+    qType.textContent = `Mode: Name → Formula (${friendlyCategoryName(category)})`;
+    qText.textContent = entry.n;
+    explainText.textContent = "Type the correct chemical formula (e.g., NaCl).";
+  } else {
+    qType.textContent = `Mode: Formula → Name (${friendlyCategoryName(category)})`;
+    qText.textContent = entry.f;
+    explainText.textContent = "Write the correct name (e.g., sodium chloride).";
+  }
+  lastAnswer.textContent = `Last: —`;
+  updateProgress();
+}
+
+function friendlyCategoryName(key){
+  switch(key){
+    case 'type1': return "Ionic (Type I)";
+    case 'transition': return "Transition Metals";
+    case 'poly': return "Polyatomic Ions";
+    case 'covalent': return "Covalent (Molecular)";
+    default: return key;
+  }
+}
+
+function checkAnswer(){
+  const entry = session.pool[session.currentIndex];
+  if(!entry) return;
+  const mode = modeSelect.value;
+  const raw = answerInput.value;
+  if(raw.trim() === "") { feedbackArea.textContent = "Type an answer (or press Show Answer)."; return; }
+
+  session.tried++;
+  let correct=false, explanation="";
+  if(mode === 'nameToFormula'){
+    // Accept canonical form: remove spaces, lowercase letters allowed, case-insensitive for element symbols
+    const expected = formulaCanonical(entry.f).toLowerCase();
+    const given = formulaCanonical(raw).toLowerCase();
+    correct = (expected === given);
+    explanation = `Expected formula: ${entry.f}`;
+  } else {
+    // Formula → Name: allow variations: e.g., "sodium hydrogen carbonate" vs "sodium bicarbonate"
+    const expectedNames = generateNameVariants(entry.n);
+    const given = normalizeAnswer(raw);
+    correct = expectedNames.some(v => normalizeAnswer(v) === given);
+    explanation = `Accepted name(s): ${expectedNames.join(" • ")}`;
+  }
+
+  if(correct){
+    session.score += 10;
+    session.correct++;
+    session.streak++;
+    feedbackArea.innerHTML = `<div style="color:var(--success);font-weight:700">Correct! ✅</div><div class="small-muted">${explanation}</div>`;
+  } else {
+    session.score = Math.max(0, session.score - 2);
+    session.streak = 0;
+    feedbackArea.innerHTML = `<div style="color:var(--danger);font-weight:700">Not quite — try again or press Show Answer ✨</div><div class="small-muted">${explanation}</div>`;
+  }
+  updateStats();
+  updateProgress();
+  lastAnswer.textContent = `Last: ${mode==='nameToFormula' ? entry.n + " → " + entry.f : entry.f + " → " + entry.n}`;
+}
+
+function generateNameVariants(name){
+  // Provide common synonyms / variants to accept (basic)
+  const variants = [name];
+  // common alias: sodium bicarbonate vs sodium hydrogen carbonate
+  if(name === "sodium bicarbonate") variants.push("sodium hydrogen carbonate");
+  if(name === "thionyl chloride") variants.push("sulfuryl chloride");
+  if(name.includes("ic oxide")){
+    // nothing
+  }
+  // add versions without parentheses: iron(III) oxide -> iron iii oxide
+  const parenMatch = name.match(/^(.*)\((i+|iv|v|vi|ii|iii)\)(.*)$/i);
+  if(parenMatch){
+    variants.push( (parenMatch[1] + " " + parenMatch[2] + " " + parenMatch[3]).replace(/\s+/g," ").trim() );
+  }
+  return variants;
+}
+
+function showAnswer(){
+  const entry = session.pool[session.currentIndex];
+  if(!entry) return;
+  const mode = modeSelect.value;
+  if(mode === 'nameToFormula'){
+    feedbackArea.innerHTML = `<div class="small-muted">Answer: <strong>${entry.f}</strong></div><div class="small-muted">${entry.hint || ""}</div>`;
+  } else {
+    feedbackArea.innerHTML = `<div class="small-muted">Answer: <strong>${entry.n}</strong></div><div class="small-muted">${entry.hint || ""}</div>`;
+  }
+}
+
+/* Hint content: show naming rule relevant to category or entry */
+function showHint(){
+  const entry = session.pool[session.currentIndex];
+  if(!entry) return;
+  hintBox.style.display = "block";
+  hintBox.innerHTML = `<strong>Hint:</strong> ${entry.hint || "Try thinking about charges and prefixes."}`;
+}
+
+/* Reset session */
+function resetSession(){
+  if(!confirm("Reset this session? This will reshuffle the pool.")) return;
+  startNewSession();
+}
+
+/* Export list to clipboard / download */
+function downloadList(){
+  const lines = session.pool.map(e => `${e.f}\t${e.n}\t${e.hint || ""}`);
+  const blob = new Blob([lines.join("\n")], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download = `chem-practice-${session.poolName||'pool'}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- Event listeners ---------- */
+nextBtn.addEventListener('click', ()=> nextQuestion());
+checkBtn.addEventListener('click', ()=> checkAnswer());
+showBtn.addEventListener('click', ()=> showAnswer());
+hintBtn.addEventListener('click', ()=> showHint());
+resetBtn.addEventListener('click', ()=> resetSession());
+downloadBtn.addEventListener('click', ()=> downloadList());
+
+answerInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') { e.preventDefault(); checkAnswer(); }
+});
+
+categorySelect.addEventListener('change', ()=> startNewSession());
+modeSelect.addEventListener('change', ()=> {
+  // If switching mode, keep same current entry shown but swap prompt if present
+  if(session.pool && session.currentIndex !== null){
+    const entry = session.pool[session.currentIndex];
+    if(modeSelect.value === 'nameToFormula'){
+      qType.textContent = `Mode: Name → Formula (${friendlyCategoryName(session.poolName)})`;
+      qText.textContent = entry.n;
+      explainText.textContent = "Type the correct chemical formula (e.g., NaCl).";
+    } else {
+      qType.textContent = `Mode: Formula → Name (${friendlyCategoryName(session.poolName)})`;
+      qText.textContent = entry.f;
+      explainText.textContent = "Write the correct name (e.g., sodium chloride).";
     }
+  }
+});
+difficultySelect.addEventListener('change', ()=> startNewSession());
 
-    function newQuestion() {
-      document.getElementById("answer").value = "";
-      if (mode === "ionic") {
-        currentQuestion = ionicCompounds[Math.floor(Math.random() * ionicCompounds.length)];
-        if (Math.random() > 0.5) {
-          document.getElementById("question").innerText = `What is the name of ${currentQuestion.formula}?`;
-          currentQuestion.type = "formula";
-        } else {
-          document.getElementById("question").innerText = `What is the formula for ${currentQuestion.name}?`;
-          currentQuestion.type = "name";
-        }
-      } else if (mode === "covalent") {
-        currentQuestion = covalentCompounds[Math.floor(Math.random() * covalentCompounds.length)];
-        if (Math.random() > 0.5) {
-          document.getElementById("question").innerText = `What is the name of ${currentQuestion.formula}?`;
-          currentQuestion.type = "formula";
-        } else {
-          document.getElementById("question").innerText = `What is the formula for ${currentQuestion.name}?`;
-          currentQuestion.type = "name";
-        }
-      }
-    }
-
-    document.getElementById("answer").addEventListener("keyup", function(e) {
-      if (e.key === "Enter") {
-        checkAnswer();
-      }
-    });
-
-    function checkAnswer() {
-      let ans = document.getElementById("answer").value.trim().toLowerCase();
-      let correct;
-
-      if (mode === "ionic" || mode === "covalent") {
-        correct = (currentQuestion.type === "formula") ? currentQuestion.name : currentQuestion.formula.toLowerCase();
-      }
-
-      if (ans === correct) {
-        document.getElementById("feedback").innerText = "✅ Correct!";
-        setTimeout(newQuestion, 1000);
-      } else {
-        document.getElementById("feedback").innerText = `❌ Incorrect. Correct answer: ${correct}`;
-      }
-    }
-  </script>
-</body>
-</html>
+/* ---------- Initialization ---------- */
+(function init(){
+  // start with default pool
+  startNewSession();
+})();
+</script>
