@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Polyatomic Ion Study — Minimal</title>
+  <style>
+    :root{--bg:#f6fbff;--card:#ffffff;--accent:#2b6fdf;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;background:var(--bg);color:#0f172a;margin:0;padding:24px;}
+    .wrap{max-width:980px;margin:0 auto}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+    button,select,input[type=text]{background:var(--card);border:1px solid #e6eefb;padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer}
+    button.primary{background:linear-gradient(180deg,var(--accent),#1f5fdc);color:white;border:none}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+
+    /* card */
+    .card{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 6px 18px rgba(22,40,80,0.06)}
+
+    /* list */
+    .table{max-height:540px;overflow:auto;padding:6px}
+    .ion{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;margin:6px 0;border:1px solid transparent}
+    .ion:hover{background:#f3f8ff;border-color:#e7f0ff}
+    .ion .meta{display:flex;gap:10px;align-items:center}
+    .badge{font-size:12px;padding:6px 10px;border-radius:999px;background:#f1f5ff;color:#0f172a}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* flashcard */
+    .flash{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+    .card-face{min-height:140px;border-radius:12px;padding:18px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:20px}
+    .card-face.front{background:linear-gradient(180deg,#ffffff,#f7fbff);border:1px solid #e6eefb}
+    .card-face.back{background:linear-gradient(180deg,#f0f7ff,#ffffff);border:1px solid #dfefff}
+    .small-input{padding:8px;border-radius:8px;border:1px solid #e6eefb;width:100%}
+
+    .footer{margin-top:12px;display:flex;gap:8px;justify-content:space-between}
+
+    /* minimal responsive */
+    @media (max-width:900px){.grid{grid-template-columns:1fr;}.controls{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(180deg,#e6f0ff,#dbe9ff);display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700">PI</div>
+      <div>
+        <h1>Polyatomic Ion Study — Minimal</h1>
+        <p class="lead">Study modes: <strong>List</strong> • <strong>Flashcard</strong> • <strong>Quiz</strong>. Add your ions, practice, and track correct answers.</p>
+      </div>
+    </header>
+
+    <div class="controls">
+      <select id="mode" title="Study mode">
+        <option value="list">List</option>
+        <option value="flash">Flashcards</option>
+        <option value="quiz">Type-to-answer Quiz</option>
+      </select>
+      <button class="primary" id="shuffle">Shuffle</button>
+      <button id="resetScores">Reset Scores</button>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <input id="filter" type="text" placeholder="Filter by name or formula" style="padding:8px;border-radius:10px;border:1px solid #e6eefb" />
+        <button id="addBtn">Add Ion</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div id="contentArea"></div>
+      </div>
+
+      <aside class="card">
+        <h3 style="margin:0 0 8px 0">My Ion Tools</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="small">Progress: <span id="progress">0 / 0</span></div>
+          <div class="small">Correct streak: <strong id="streak">0</strong></div>
+          <hr />
+          <div>
+            <label class="small">Add ion</label>
+            <input id="nameInput" type="text" placeholder="Name (e.g. sulfate)" />
+            <input id="formulaInput" type="text" placeholder="Formula (e.g. SO4)" />
+            <input id="chargeInput" type="text" placeholder="Charge (e.g. -2 or 2-)" />
+            <button id="saveIon" style="margin-top:6px;">Save</button>
+          </div>
+          <hr />
+          <div class="small">Quick tips:</div>
+          <ul class="small" style="margin:6px 0 0 16px;padding:0">
+            <li>-ate = more O, -ite = fewer O</li>
+            <li>per- = one more O than -ate, hypo- = one fewer than -ite</li>
+            <li>Use flashcards for recall; use quiz to type formulas</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <footer style="margin-top:18px;text-align:center;color:var(--muted);font-size:13px">Made for quick, focused practice — minimal and blue ✨</footer>
+  </div>
+
+<script>
+  function normalizeCharge(c) {
+    c = c.replace(/\s+/g, '').replace('−','-'); // normalize minus sign
+    if (!c) return c;
+    // Match things like -2, 2-, +3, 3+
+    const m = c.match(/^([+-]?)(\d+)([+-]?)$/);
+    if (m) {
+      let sign = m[1] || m[3];
+      let num = m[2];
+      if (!sign) sign = '+';
+      return num + sign;
+    }
+    return c;
+  }
+
+  const defaultIons = [
+    {name:'ammonium', formula:'NH4', charge:'+1'},
+    {name:'mercury(I) / mercurous', formula:'Hg2', charge:'+2'},
+    {name:'nitrate', formula:'NO3', charge:'-1'},
+    {name:'nitrite', formula:'NO2', charge:'-1'},
+    {name:'sulfite', formula:'SO3', charge:'-2'},
+    {name:'sulfate', formula:'SO4', charge:'-2'},
+    {name:'hydrogen sulfate (bisulfate)', formula:'HSO4', charge:'-1'},
+    {name:'hydroxide', formula:'OH', charge:'-1'},
+    {name:'cyanide', formula:'CN', charge:'-1'},
+    {name:'arsenate', formula:'AsO4', charge:'-3'},
+    {name:'phosphate', formula:'PO4', charge:'-3'},
+    {name:'hydrogen phosphate', formula:'HPO4', charge:'-2'},
+    {name:'dihydrogen phosphate', formula:'H2PO4', charge:'-1'},
+    {name:'thiocyanate', formula:'SCN', charge:'-1'},
+    {name:'permanganate', formula:'MnO4', charge:'-1'},
+    {name:'carbonate', formula:'CO3', charge:'-2'},
+    {name:'hydrogen carbonate (bicarbonate)', formula:'HCO3', charge:'-1'},
+    {name:'hypochlorite', formula:'ClO', charge:'-1'},
+    {name:'chlorite', formula:'ClO2', charge:'-1'},
+    {name:'chlorate', formula:'ClO3', charge:'-1'},
+    {name:'perchlorate', formula:'ClO4', charge:'-1'},
+    {name:'acetate', formula:'C2H3O2', charge:'-1'},
+    {name:'dichromate', formula:'Cr2O7', charge:'-2'},
+    {name:'chromate', formula:'CrO4', charge:'-2'},
+    {name:'peroxide', formula:'O2', charge:'-2'},
+    {name:'oxalate', formula:'C2O4', charge:'-2'},
+    {name:'thiosulfate', formula:'S2O3', charge:'-2'}
+  ].map(ion => ({...ion, charge: normalizeCharge(ion.charge)}));
+
+  let ions = JSON.parse(localStorage.getItem('pi_ions')) || defaultIons.slice();
+  ions = ions.map(ion => ({...ion, charge: normalizeCharge(ion.charge)}));
+  let scores = JSON.parse(localStorage.getItem('pi_scores')) || {};
+  let mode = 'list';
+  let currentIndex = 0;
+  let streak = 0;
+
+  const contentArea = document.getElementById('contentArea');
+  const modeSelect = document.getElementById('mode');
+  const shuffleBtn = document.getElementById('shuffle');
+  const filterInput = document.getElementById('filter');
+  const progressEl = document.getElementById('progress');
+  const streakEl = document.getElementById('streak');
+  const saveIon = document.getElementById('saveIon');
+  const nameInput = document.getElementById('nameInput');
+  const formulaInput = document.getElementById('formulaInput');
+  const chargeInput = document.getElementById('chargeInput');
+  const resetScores = document.getElementById('resetScores');
+
+  function persist(){
+    localStorage.setItem('pi_ions', JSON.stringify(ions));
+    localStorage.setItem('pi_scores', JSON.stringify(scores));
+  }
+
+  function render(){
+    document.getElementById('mode').value = mode;
+    if(mode === 'list') renderList();
+    else if(mode === 'flash') renderFlash();
+    else renderQuiz();
+    progressEl.textContent = Object.keys(scores).length + ' saved / ' + ions.length;
+    streakEl.textContent = streak;
+  }
+
+  function renderList(){
+    const q = filterInput.value.trim().toLowerCase();
+    let html = '<div class="table">';
+    ions.forEach((ion,i)=>{
+      if(q && !(ion.name.toLowerCase().includes(q) || ion.formula.toLowerCase().includes(q))) return;
+      html += `<div class="ion" data-i="${i}"><div class="meta"><div><strong>${ion.name}</strong><div class="small">${ion.formula}<sup>${ion.charge}</sup></div></div></div><div><span class="badge">${ion.charge}</span></div></div>`;
+    });
+    html += '</div>';
+    contentArea.innerHTML = html;
+    document.querySelectorAll('.ion').forEach(el=>el.addEventListener('click',()=>{
+      const idx = el.dataset.i; showDetail(idx);
+    }));
+  }
+
+  function showDetail(i){
+    const ion = ions[i];
+    contentArea.innerHTML = `<div style="display:flex;flex-direction:column;gap:12px"><div class="card-face front"><div style="font-size:18px;font-weight:700">${ion.name}</div><div class="small" style="margin-top:6px">Formula: ${ion.formula}<sup>${ion.charge}</sup></div></div><div class="card-face back"><div class="small">Hints:</div><ul class="small" style="margin:6px 0 0 16px"><li>Write the element letters capitalized</li><li>Remember charge: ${ion.charge}</li></ul><div style="display:flex;gap:8px;margin-top:10px"><button id="prev">Prev</button><button id="next">Next</button><button id="close">Close</button></div></div></div>`;
+    document.getElementById('close').addEventListener('click',render);
+    document.getElementById('prev').addEventListener('click',()=>{currentIndex = (Number(i)-1+ions.length)%ions.length; showDetail(currentIndex);});
+    document.getElementById('next').addEventListener('click',()=>{currentIndex = (Number(i)+1)%ions.length; showDetail(currentIndex);});
+  }
+
+  function renderFlash(){
+    currentIndex = currentIndex % ions.length;
+    const ion = ions[currentIndex];
+    contentArea.innerHTML = `
+      <div class="flash" id="flashCard" style="cursor:pointer;perspective:1000px;">
+        <div class="inner" style="transition:transform 0.6s;transform-style:preserve-3d;position:relative;">
+          <div class="card-face front" style="backface-visibility:hidden;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+            <div class="small">Name</div>
+            <div style="font-weight:800;font-size:22px;margin-top:6px">${ion.name}</div>
+          </div>
+          <div class="card-face back" style="backface-visibility:hidden;transform:rotateY(180deg);position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div class="small">Formula & Charge</div>
+            <div style="font-size:20px;margin-top:6px">${ion.formula}<sup>${ion.charge}</sup></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer" style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
+        <button id="prevF">Prev</button>
+        <button id="nextF">Next</button>
+      </div>
+    `;
+    const inner = contentArea.querySelector(".inner");
+    let flipped = false;
+    document.getElementById("flashCard").addEventListener("click",()=>{
+      flipped = !flipped;
+      inner.style.transform = flipped ? "rotateY(180deg)" : "rotateY(0deg)";
+    });
+    document.getElementById('prevF').addEventListener('click',()=>{currentIndex=(currentIndex-1+ions.length)%ions.length;render();});
+    document.getElementById('nextF').addEventListener('click',()=>{currentIndex=(currentIndex+1)%ions.length;render();});
+  }
+
+  function renderQuiz(){
+    currentIndex = Math.floor(Math.random()*ions.length);
+    const ion = ions[currentIndex];
+    contentArea.innerHTML = `
+      <div class="flash">
+        <div class="card-face front"><div class="small">Write the formula + charge for:</div><div style="font-weight:800;font-size:22px;margin-top:6px">${ion.name}</div></div>
+        <div class="card-face back">
+          <input id="formulaQ" class="small-input" placeholder="Formula (e.g. SO4)" />
+          <input id="chargeQ" class="small-input" placeholder="Charge (e.g. 2-)" />
+        </div>
+        <div class="footer"><div></div><div><button id="qCheck" class="primary">Submit</button></div></div>
+      </div>
+    `;
+    document.getElementById('qCheck').addEventListener('click',()=>{
+      const fAns = document.getElementById('formulaQ').value.replace(/\s+/g,'').toLowerCase();
+      const cAns = normalizeCharge(document.getElementById('chargeQ').value);
+      const correctF = ion.formula.replace(/\s+/g,'').toLowerCase();
+      const correctC = normalizeCharge(ion.charge);
+      if(fAns === correctF && cAns === correctC){
+        streak++; scores[ion.name] = (scores[ion.name]||0)+1; persist(); alert('Correct!'); render();
+      } else {
+        streak=0; persist(); alert('Correct answer: '+ion.formula+' '+ion.charge); render();
+      }
+    });
+  }
+
+  modeSelect.addEventListener('change',()=>{mode=modeSelect.value;render();});
+  shuffleBtn.addEventListener('click',()=>{ions.sort(()=>Math.random()-0.5);render();});
+  filterInput.addEventListener('input',render);
+  resetScores.addEventListener('click',()=>{scores={};streak=0;persist();render();});
+  saveIon.addEventListener('click',()=>{
+    const name = nameInput.value.trim();
+    const formula = formulaInput.value.trim();
+    const charge = normalizeCharge(chargeInput.value.trim());
+    if(name && formula && charge){
+      ions.push({name,formula,charge});
+      persist(); render();
+      nameInput.value='';formulaInput.value='';chargeInput.value='';
+    }
+  });
+
+  render();
+</script>
